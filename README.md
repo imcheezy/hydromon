@@ -43,7 +43,9 @@ npx http-server -p 8080
 
 Works as-is on any static host.
 
-- **GitHub Pages** — Settings → Pages → Deploy from branch, pick the branch and `/ (root)`.
+- **GitHub Pages** — Settings → Pages → Source: **GitHub Actions**. The workflow in
+  `.github/workflows/deploy-pages.yml` publishes the repo root on every push to `main`, and
+  can be run by hand from the Actions tab ("Deploy to GitHub Pages" → Run workflow).
 - **Vercel / Netlify / Cloudflare Pages** — point at the repo, no build command, output
   directory `.`.
 
