@@ -24,7 +24,7 @@ No build step, no backend, no accounts. Open `index.html` and drink.
 
 | Tab | What's there |
 | --- | --- |
-| **Hydrate** | Progress bar to your next discovery, quick-add buttons (+8/12/16/24/32 oz), custom amount, today vs. lifetime totals, today's log with per-entry undo |
+| **Hydrate** | Your latest catch up top, progress bar to your next discovery, quick-add buttons (+8/12/16/24/32 oz), custom amount, today vs. lifetime totals, today's log with per-entry undo |
 | **Pokédex** | All 151 in a grid — caught ones in colour with a type tint, uncaught as black silhouettes marked `???`. Filter by All / Caught / Missing |
 | **Stats** | All-time ounces, days tracked, average and best day, full catch history with dates and the milestone each was found at, plus export / import / reset |
 

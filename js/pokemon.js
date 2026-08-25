@@ -80,6 +80,12 @@ const GEN1 = [
 
 const POKEDEX = GEN1.map((p, i) => ({ id: i + 1, name: p[0], type: p[1] }));
 
+/* Every type present in Gen 1, used to clear type tint classes off a card. */
+const TYPES = POKEDEX.reduce(
+  (acc, p) => (acc.indexOf(p.type) === -1 ? acc.concat(p.type) : acc),
+  []
+);
+
 /* Grid sprites ship with the app (~600 KB for all 151) so the Pokedex works
    offline and never depends on a CDN. The big official artwork used in the
    discovery reveal is fetched on demand and falls back to the local sprite. */

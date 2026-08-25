@@ -6,6 +6,7 @@
   let dexFilter = "all";
   let revealQueue = [];
   let revealing = false;
+  let shownLatestDex = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -136,6 +137,8 @@
   }
 
   function renderHydrate() {
+    renderLatestCatch();
+
     const complete = state.caught.length >= TOTAL_POKEMON;
     const pct = complete ? 1 : progressToNext(state);
     const remaining = ozUntilNext(state);
@@ -183,6 +186,54 @@
       li.appendChild(undo);
       list.appendChild(li);
     });
+  }
+
+  /* The most recent catch, shown at the top of the Hydrate tab. Falls back to
+     an empty Poke Ball until the first discovery. */
+  function renderLatestCatch() {
+    const card = $("latest-card");
+    const sprite = $("latest-sprite");
+    const emptyBall = $("latest-empty-ball");
+    const last = state.caught[state.caught.length - 1];
+
+    if (!last) {
+      card.classList.remove("has-catch");
+      card.classList.remove.apply(card.classList, typeClasses());
+      sprite.hidden = true;
+      sprite.removeAttribute("src");
+      emptyBall.hidden = false;
+      shownLatestDex = null;
+      $("latest-kicker").textContent = "Latest catch";
+      $("latest-name").textContent = "No Pokémon yet";
+      $("latest-meta").textContent = "Your first appears at 100 oz.";
+      return;
+    }
+
+    const mon = POKEDEX[last.dex - 1];
+    card.classList.add("has-catch");
+    card.classList.remove.apply(card.classList, typeClasses());
+    card.classList.add("type-bg-" + mon.type);
+    emptyBall.hidden = true;
+    sprite.hidden = false;
+    sprite.src = spriteUrl(mon.id);
+    sprite.alt = mon.name;
+    if (shownLatestDex !== mon.id) {
+      sprite.classList.remove("is-new");
+      void sprite.offsetWidth; // restart the animation
+      sprite.classList.add("is-new");
+      shownLatestDex = mon.id;
+    }
+    $("latest-kicker").textContent =
+      state.caught.length === TOTAL_POKEMON ? "Final catch" : "Latest catch";
+    $("latest-name").textContent = mon.name;
+    $("latest-meta").innerHTML =
+      '<span class="type type-' + mon.type + '">' + mon.type + "</span>" +
+      '<span class="dexno">#' + String(mon.id).padStart(3, "0") + "</span>" +
+      '<span class="dexno">' + formatDate(last.ts) + "</span>";
+  }
+
+  function typeClasses() {
+    return TYPES.map((t) => "type-bg-" + t);
   }
 
   function renderDex() {
