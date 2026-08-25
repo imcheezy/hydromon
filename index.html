@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A water tracker where every 100oz you drink discovers a new Gen 1 Pokémon.">
+<meta name="theme-color" content="#16121f">
+<title>Hydro-mon — drink water, catch 'em all</title>
+<link rel="preconnect" href="https://raw.githubusercontent.com">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-drop" aria-hidden="true">💧</span>
+    <h1>Hydro-mon</h1>
+  </div>
+  <p class="tagline">Drink water. Catch 'em all.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab is-active" role="tab" aria-selected="true" aria-controls="view-hydrate" data-view="hydrate">Hydrate</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="view-dex" data-view="dex">Pokédex</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="view-stats" data-view="stats">Stats</button>
+</nav>
+
+<main>
+  <!-- ───────── Hydrate ───────── -->
+  <section id="view-hydrate" class="view is-active" role="tabpanel">
+
+    <div class="card next-catch">
+      <div class="next-catch-head">
+        <h2>Next discovery</h2>
+        <span class="pill" id="oz-until-next">100 oz to go</span>
+      </div>
+      <div class="ball-track">
+        <div class="ball-fill" id="ball-fill"></div>
+        <div class="ball-water" id="ball-water"></div>
+        <span class="ball-icon" id="ball-icon" aria-hidden="true">◓</span>
+      </div>
+      <p class="next-catch-note" id="next-catch-note">Every 100 oz you drink reveals a Pokémon you don't own yet.</p>
+    </div>
+
+    <div class="card">
+      <h2>Log water</h2>
+      <div class="quick-add">
+        <button class="qa" data-oz="8"><strong>+8</strong><span>glass</span></button>
+        <button class="qa" data-oz="12"><strong>+12</strong><span>can</span></button>
+        <button class="qa" data-oz="16"><strong>+16</strong><span>bottle</span></button>
+        <button class="qa" data-oz="24"><strong>+24</strong><span>big bottle</span></button>
+        <button class="qa" data-oz="32"><strong>+32</strong><span>jug</span></button>
+      </div>
+      <form class="custom-add" id="custom-form">
+        <label class="sr-only" for="custom-oz">Custom ounces</label>
+        <input id="custom-oz" type="number" inputmode="decimal" min="1" max="500" step="1" placeholder="Custom oz…">
+        <button type="submit" class="btn-primary">Add</button>
+      </form>
+    </div>
+
+    <div class="totals">
+      <div class="card stat">
+        <span class="stat-label">Today</span>
+        <span class="stat-value" id="today-oz">0<small>oz</small></span>
+        <div class="goal-track"><div class="goal-fill" id="goal-fill"></div></div>
+        <span class="stat-sub" id="goal-sub">of 64 oz goal</span>
+      </div>
+      <div class="card stat">
+        <span class="stat-label">Lifetime</span>
+        <span class="stat-value" id="lifetime-oz">0<small>oz</small></span>
+        <span class="stat-sub" id="caught-sub">0 / 151 caught</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Today's log</h2>
+      <ul class="log-list" id="log-list"></ul>
+      <p class="empty" id="log-empty">Nothing logged yet today. Go get a glass.</p>
+    </div>
+  </section>
+
+  <!-- ───────── Pokédex ───────── -->
+  <section id="view-dex" class="view" role="tabpanel">
+    <div class="card dex-head">
+      <div>
+        <h2>Pokédex</h2>
+        <p class="stat-sub" id="dex-progress-text">0 / 151 caught</p>
+      </div>
+      <div class="dex-filters">
+        <button class="chip is-active" data-filter="all">All</button>
+        <button class="chip" data-filter="caught">Caught</button>
+        <button class="chip" data-filter="missing">Missing</button>
+      </div>
+    </div>
+    <div class="dex-progress"><div class="dex-progress-fill" id="dex-progress-fill"></div></div>
+    <div class="dex-grid" id="dex-grid"></div>
+  </section>
+
+  <!-- ───────── Stats ───────── -->
+  <section id="view-stats" class="view" role="tabpanel">
+    <div class="totals stats-grid">
+      <div class="card stat"><span class="stat-label">All-time</span><span class="stat-value" id="s-lifetime">0<small>oz</small></span></div>
+      <div class="card stat"><span class="stat-label">Days tracked</span><span class="stat-value" id="s-days">0</span></div>
+      <div class="card stat"><span class="stat-label">Avg / day</span><span class="stat-value" id="s-avg">0<small>oz</small></span></div>
+      <div class="card stat"><span class="stat-label">Best day</span><span class="stat-value" id="s-best">0<small>oz</small></span></div>
+    </div>
+
+    <div class="card">
+      <h2>Catch history</h2>
+      <ul class="catch-log" id="catch-log"></ul>
+      <p class="empty" id="catch-empty">No Pokémon yet — your first appears at 100 oz.</p>
+    </div>
+
+    <div class="card">
+      <h2>Your data</h2>
+      <p class="stat-sub">Everything is stored in this browser only. Export a backup before switching devices.</p>
+      <div class="data-actions">
+        <button class="btn-ghost" id="export-btn">Export JSON</button>
+        <button class="btn-ghost" id="import-btn">Import JSON</button>
+        <button class="btn-danger" id="reset-btn">Reset everything</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json" hidden>
+    </div>
+  </section>
+</main>
+
+<!-- ───────── Discovery modal ───────── -->
+<div class="modal" id="discovery-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="discovery-title">
+    <div class="sparkles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="reveal-stage">
+      <div class="pokeball" id="pokeball" aria-hidden="true">
+        <div class="pokeball-top"></div>
+        <div class="pokeball-bottom"></div>
+        <div class="pokeball-band"></div>
+        <div class="pokeball-button"></div>
+      </div>
+      <img class="reveal-art" id="reveal-art" alt="" hidden>
+    </div>
+    <p class="reveal-kicker" id="reveal-kicker">A wild Pokémon appeared…</p>
+    <h2 class="reveal-name" id="discovery-title">???</h2>
+    <p class="reveal-meta" id="reveal-meta"></p>
+    <button class="btn-primary" id="discovery-close">Nice!</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/pokemon.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
