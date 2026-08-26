@@ -432,6 +432,30 @@ h2 { font-size: 1rem; letter-spacing: 0.02em; }
 .type-bg-ice      { background: linear-gradient(160deg, rgba(150,220,235,0.18), var(--card)); }
 .type-bg-dragon   { background: linear-gradient(160deg, rgba(120,100,240,0.18), var(--card)); }
 
+/* ---------- leaderboard ---------- */
+
+.board-list { list-style: none; margin: 0; padding: 0; }
+.board-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.board-row:last-child { border-bottom: 0; }
+.board-row.is-you { color: var(--water-2); }
+.board-rank {
+  flex: 0 0 22px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.board-row.is-you .board-rank { color: var(--water-2); }
+.board-name { flex: 1; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-name em { font-style: normal; color: var(--muted); font-weight: 600; font-size: 0.78rem; margin-left: 4px; }
+.board-stats { font-size: 0.78rem; color: var(--muted); text-align: right; white-space: nowrap; }
+.board-row.is-you .board-stats { color: inherit; opacity: 0.85; }
+
 /* ---------- catch history ---------- */
 
 .catch-log { list-style: none; margin: 12px 0 0; padding: 0; }

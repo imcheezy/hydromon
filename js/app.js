@@ -382,6 +382,14 @@
     if (!saveState(state)) {
       showToast("Couldn't save — this browser is blocking storage.");
     }
+    // Best-effort push to the optional shared leaderboard, if configured.
+    if (window.HydromonLeaderboard) {
+      try {
+        window.HydromonLeaderboard.sync();
+      } catch (err) {
+        console.warn("Leaderboard sync failed:", err);
+      }
+    }
   }
 
   function makeId() {
