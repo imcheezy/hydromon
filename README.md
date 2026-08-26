@@ -31,6 +31,7 @@ No build step, no backend, no accounts. Open `index.html` and drink.
 | **Hydrate** | Your latest catch up top, progress bar to your next discovery with an Easy/Medium/Hard difficulty toggle, quick-add buttons (+8/12/16/24/32 oz), custom amount, today vs. lifetime totals, today's log with per-entry undo |
 | **Pokédex** | All 151 in a grid — caught ones in colour with a type tint, uncaught as black silhouettes marked `???`. Filter by All / Caught / Missing |
 | **Stats** | All-time ounces, days tracked, average and best day, full catch history with dates and the milestone each was found at, plus export / import / reset |
+| **Board** | Optional shared leaderboard — see "Leaderboard setup" below. Does nothing until configured |
 
 Finding a Pokémon plays a Poké Ball reveal: the ball wobbles, bursts, and the Pokémon appears.
 
@@ -79,6 +80,70 @@ Saves from before the difficulty toggle (`version: 1`, with a `discoveriesGrante
 implying a fixed 100oz/catch) are migrated automatically on load: the banked remainder carries
 over into `catchMeterOz` and difficulty defaults to Medium.
 
+## Leaderboard setup
+
+The Board tab is a small, optional, best-effort feature for comparing progress with a friend.
+It ships **unconfigured** — `js/firebase-config.js` has placeholder values, and until they're
+filled in the Board tab just shows "Leaderboard isn't set up yet" and the rest of the app is
+completely unaffected.
+
+What it does: each device picks a nickname once, and after every local save (`persist()` in
+`js/app.js`) pushes a small summary — nickname, lifetime oz, Pokémon caught, difficulty, and
+your most recent catch — to a shared [Firebase](https://firebase.google.com/) Firestore
+collection called `players`, keyed by a random ID generated on first launch. A live listener
+renders everyone in that collection, sorted by lifetime oz. Your detailed water log and full
+catch history never leave your device — only that small summary syncs.
+
+To turn it on:
+
+1. Create a free Firebase project at [console.firebase.google.com](https://console.firebase.google.com/)
+   (the free Spark plan is far more than enough for a couple of people).
+2. In the project, **Build → Firestore Database → Create database** (any region, start in
+   production mode). In the left sidebar under **Build**, Firebase lists two separate,
+   similarly-named products — **Firestore Database** and **Realtime Database** — each with
+   its own Rules tab and its own rules language. Make sure you're in **Firestore Database**;
+   if the console shows default rules shaped like `{ "rules": { ".read": false, ".write":
+   false } }` (JSON), that's Realtime Database's syntax and you're in the wrong one — the
+   snippet below won't parse there no matter how it's pasted.
+3. In Firestore Database's **Rules** tab, **select all of the existing default text and
+   delete it** — the console pre-fills a starter template (`allow read, write: if false;`),
+   and pasting on top of it instead of replacing it is a common cause of a parse error here,
+   since you end up with two overlapping rule blocks. With the editor empty, paste:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /players/{playerId} {
+         allow read: if true;
+         allow write: if request.resource.data.keys().hasOnly(
+           ['nickname','lifetimeOz','caughtCount','difficulty','lastCatch','updatedAt']
+         )
+         && request.resource.data.lifetimeOz is number
+         && request.resource.data.lifetimeOz >= 0;
+       }
+     }
+   }
+   ```
+   This validates the *shape* of what's written, not *who* wrote it — there's no login, just a
+   nickname, which is the intended trust model for a couple of friends sharing a link. Note
+   `allow read: if true;` — Firestore's rules language always requires `if` before a
+   condition, even a constant one; `allow read: true;` (no `if`) is a syntax error.
+
+   If the editor still won't save after pasting this exactly, the most likely culprit is the
+   four `'` quote characters getting silently converted to curly ones (`'2'` → `'2'`) by
+   whatever you copied through — click next to each and retype it by hand.
+4. **Project settings → General → Your apps → Add app → Web** (the `</>` icon), register it
+   (no need for Firebase Hosting), and copy the `firebaseConfig` object it gives you.
+5. Paste those values into `js/firebase-config.js` — every field, replacing the `"REPLACE_ME"`
+   placeholders. This file is safe to commit: it's a public client identifier, not a secret;
+   access is controlled by the Firestore rules above, not by hiding this file.
+6. Push/deploy. Open the site, go to the Board tab, and pick a nickname — do the same on your
+   friend's device and you should see each other live.
+
+If Firebase is ever unreachable (offline, ad blocker, misconfigured), the Board tab shows a
+friendly message instead of an error, and logging water / catching Pokémon keeps working
+exactly as before — nothing else in the app depends on this.
+
 ## Sprites
 
 Grid sprites for all 151 ship in `sprites/` (~600 KB total, from
@@ -90,12 +155,14 @@ or unavailable.
 ## Layout
 
 ```
-index.html          markup for all three tabs and the discovery modal
-css/styles.css      theme, layout, Poké Ball and reveal animations
-js/pokemon.js       the 151 Gen 1 names + types, sprite URL helpers
-js/storage.js       persistence, derived totals, milestone and draw rules
-js/app.js           UI wiring, reveal sequencing, import/export
-sprites/1…151.png   bundled grid sprites
+index.html               markup for all four tabs and the discovery modal
+css/styles.css            theme, layout, Poké Ball and reveal animations
+js/pokemon.js             the 151 Gen 1 names + types, sprite URL helpers
+js/storage.js             persistence, derived totals, milestone and draw rules
+js/app.js                 UI wiring, reveal sequencing, import/export
+js/firebase-config.js     Firebase project config for the leaderboard (placeholders by default)
+js/leaderboard.js         optional leaderboard: nickname, sync, live board render
+sprites/1…151.png         bundled grid sprites
 ```
 
 State rules live in `js/storage.js` and are pure functions of the saved state — that's the

@@ -24,6 +24,7 @@
   <button class="tab is-active" role="tab" aria-selected="true" aria-controls="view-hydrate" data-view="hydrate">Hydrate</button>
   <button class="tab" role="tab" aria-selected="false" aria-controls="view-dex" data-view="dex">Pokédex</button>
   <button class="tab" role="tab" aria-selected="false" aria-controls="view-stats" data-view="stats">Stats</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="view-leaderboard" data-view="leaderboard">Board</button>
 </nav>
 
 <main>
@@ -143,6 +144,25 @@
       <input type="file" id="import-file" accept="application/json" hidden>
     </div>
   </section>
+
+  <!-- ───────── Leaderboard ───────── -->
+  <section id="view-leaderboard" class="view" role="tabpanel">
+    <div class="card">
+      <div class="dex-head">
+        <h2>Leaderboard</h2>
+        <span class="stat-sub" id="leaderboard-you"></span>
+      </div>
+      <form class="custom-add" id="nickname-form">
+        <label class="sr-only" for="nickname-input">Your name</label>
+        <input id="nickname-input" type="text" maxlength="20" placeholder="Your name" autocomplete="off">
+        <button type="submit" class="btn-primary">Save</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div id="leaderboard-body"></div>
+    </div>
+  </section>
 </main>
 
 <!-- ───────── Discovery modal ───────── -->
@@ -169,6 +189,17 @@
 
 <script src="js/pokemon.js"></script>
 <script src="js/storage.js"></script>
+
+<!-- Optional shared leaderboard. Firebase's compat build exposes a plain
+     `firebase` global so it drops into this no-bundler setup like any other
+     script tag. If these fail to load (offline, ad blocker, unconfigured),
+     leaderboard.js degrades to a friendly message — the rest of the app
+     doesn't depend on any of this. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/leaderboard.js"></script>
+
 <script src="js/app.js"></script>
 </body>
 </html>
