@@ -100,7 +100,10 @@ To turn it on:
    (the free Spark plan is far more than enough for a couple of people).
 2. In the project, **Build → Firestore Database → Create database** (any region, start in
    production mode).
-3. In Firestore's **Rules** tab, paste:
+3. In Firestore's **Rules** tab, **select all of the existing default text and delete it** —
+   the console pre-fills a starter template (`allow read, write: if false;`), and pasting on
+   top of it instead of replacing it is the most common cause of a parse error here, since you
+   end up with two overlapping rule blocks. With the editor empty, paste:
    ```
    rules_version = '2';
    service cloud.firestore {
@@ -118,6 +121,12 @@ To turn it on:
    ```
    This validates the *shape* of what's written, not *who* wrote it — there's no login, just a
    nickname, which is the intended trust model for a couple of friends sharing a link.
+
+   **Still get a parse error after replacing everything?** It's almost always the four `'`
+   quote characters — copying through a browser, notes app, or word processor can silently
+   turn straight quotes into curly ones (`'2'` → `'2'`), which the rules parser rejects. Click
+   right next to each `'` in the editor and retype it by hand; that's enough to fix it without
+   retyping the whole thing.
 4. **Project settings → General → Your apps → Add app → Web** (the `</>` icon), register it
    (no need for Firebase Hosting), and copy the `firebaseConfig` object it gives you.
 5. Paste those values into `js/firebase-config.js` — every field, replacing the `"REPLACE_ME"`
