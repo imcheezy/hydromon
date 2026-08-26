@@ -114,7 +114,7 @@ To turn it on:
    service cloud.firestore {
      match /databases/{database}/documents {
        match /players/{playerId} {
-         allow read: true;
+         allow read: if true;
          allow write: if request.resource.data.keys().hasOnly(
            ['nickname','lifetimeOz','caughtCount','difficulty','lastCatch','updatedAt']
          )
@@ -125,13 +125,13 @@ To turn it on:
    }
    ```
    This validates the *shape* of what's written, not *who* wrote it — there's no login, just a
-   nickname, which is the intended trust model for a couple of friends sharing a link.
+   nickname, which is the intended trust model for a couple of friends sharing a link. Note
+   `allow read: if true;` — Firestore's rules language always requires `if` before a
+   condition, even a constant one; `allow read: true;` (no `if`) is a syntax error.
 
-   **Still get a parse error after replacing everything?** It's almost always the four `'`
-   quote characters — copying through a browser, notes app, or word processor can silently
-   turn straight quotes into curly ones (`'2'` → `'2'`), which the rules parser rejects. Click
-   right next to each `'` in the editor and retype it by hand; that's enough to fix it without
-   retyping the whole thing.
+   If the editor still won't save after pasting this exactly, the most likely culprit is the
+   four `'` quote characters getting silently converted to curly ones (`'2'` → `'2'`) by
+   whatever you copied through — click next to each and retype it by hand.
 4. **Project settings → General → Your apps → Add app → Web** (the `</>` icon), register it
    (no need for Firebase Hosting), and copy the `firebaseConfig` object it gives you.
 5. Paste those values into `js/firebase-config.js` — every field, replacing the `"REPLACE_ME"`
