@@ -222,6 +222,44 @@ h2 { font-size: 1rem; letter-spacing: 0.02em; }
 }
 .next-catch-note { margin: 0; color: var(--muted); font-size: 0.82rem; }
 
+.diff-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.diff-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.diff-seg {
+  display: flex;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.diff-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.16s, background 0.16s;
+}
+.diff-btn small { font-size: 0.64rem; font-weight: 600; opacity: 0.8; }
+.diff-btn.is-active { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+.diff-btn:hover:not(.is-active) { color: var(--text); }
+
 /* ---------- quick add ---------- */
 
 .quick-add {
