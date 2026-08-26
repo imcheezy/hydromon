@@ -99,11 +99,16 @@ To turn it on:
 1. Create a free Firebase project at [console.firebase.google.com](https://console.firebase.google.com/)
    (the free Spark plan is far more than enough for a couple of people).
 2. In the project, **Build → Firestore Database → Create database** (any region, start in
-   production mode).
-3. In Firestore's **Rules** tab, **select all of the existing default text and delete it** —
-   the console pre-fills a starter template (`allow read, write: if false;`), and pasting on
-   top of it instead of replacing it is the most common cause of a parse error here, since you
-   end up with two overlapping rule blocks. With the editor empty, paste:
+   production mode). In the left sidebar under **Build**, Firebase lists two separate,
+   similarly-named products — **Firestore Database** and **Realtime Database** — each with
+   its own Rules tab and its own rules language. Make sure you're in **Firestore Database**;
+   if the console shows default rules shaped like `{ "rules": { ".read": false, ".write":
+   false } }` (JSON), that's Realtime Database's syntax and you're in the wrong one — the
+   snippet below won't parse there no matter how it's pasted.
+3. In Firestore Database's **Rules** tab, **select all of the existing default text and
+   delete it** — the console pre-fills a starter template (`allow read, write: if false;`),
+   and pasting on top of it instead of replacing it is a common cause of a parse error here,
+   since you end up with two overlapping rule blocks. With the editor empty, paste:
    ```
    rules_version = '2';
    service cloud.firestore {
