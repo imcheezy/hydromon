@@ -8,10 +8,10 @@
    before this file existed: the leaderboard tab shows a "not set up yet"
    message and nothing tries to reach Firebase. */
 window.HYDROMON_FIREBASE_CONFIG = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME.firebaseapp.com",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME"
+  apiKey: "AIzaSyAUTon5pPEEuLr70w3oToQvf3bBn1rOCXw",
+  authDomain: "cheezy-hydration.firebaseapp.com",
+  projectId: "cheezy-hydration",
+  storageBucket: "cheezy-hydration.firebasestorage.app",
+  messagingSenderId: "221636563080",
+  appId: "1:221636563080:web:5cf7da12880c1240a64f3d"
 };
