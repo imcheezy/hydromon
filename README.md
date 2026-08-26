@@ -1,14 +1,18 @@
 # Hydro-mon 💧
 
-A water tracker where drinking feeds your Pokédex. Every **100 oz** you drink — cumulative,
+A water tracker where drinking feeds your Pokédex. Every so many ounces you drink — cumulative,
 lifetime, never reset — reveals a random Gen 1 Pokémon you don't own yet. Collect all 151.
 
 No build step, no backend, no accounts. Open `index.html` and drink.
 
 ## The rules
 
-- **Every 100 oz = one discovery.** Based on your lifetime total, not a daily count. A slow
-  day still moves you forward; a missed day costs you nothing.
+- **Every N oz = one discovery**, based on your lifetime total, not a daily count. A slow day
+  still moves you forward; a missed day costs you nothing. N is set by the difficulty toggle
+  on the Hydrate tab: Easy (48 oz), Medium (64 oz, the default), or Hard (100 oz). Switching
+  difficulty only changes catches going forward — it can't retroactively revoke one, and at
+  most it grants a single bonus catch on the spot if your banked progress already clears the
+  new, lower bar.
 - **Never a duplicate.** Each discovery draws only from the Pokémon you don't own. Once caught,
   a Pokémon leaves the draw pool for good.
 - **Random, not sequential.** You're as likely to open with Mewtwo as with Bulbasaur.
@@ -24,7 +28,7 @@ No build step, no backend, no accounts. Open `index.html` and drink.
 
 | Tab | What's there |
 | --- | --- |
-| **Hydrate** | Your latest catch up top, progress bar to your next discovery, quick-add buttons (+8/12/16/24/32 oz), custom amount, today vs. lifetime totals, today's log with per-entry undo |
+| **Hydrate** | Your latest catch up top, progress bar to your next discovery with an Easy/Medium/Hard difficulty toggle, quick-add buttons (+8/12/16/24/32 oz), custom amount, today vs. lifetime totals, today's log with per-entry undo |
 | **Pokédex** | All 151 in a grid — caught ones in colour with a type tint, uncaught as black silhouettes marked `???`. Filter by All / Caught / Missing |
 | **Stats** | All-time ounces, days tracked, average and best day, full catch history with dates and the milestone each was found at, plus export / import / reset |
 
@@ -59,15 +63,21 @@ The saved shape:
 
 ```jsonc
 {
-  "version": 1,
+  "version": 2,
   "lifetimeOz": 4280,
-  "discoveriesGranted": 42,   // milestones paid out; kept separate from lifetimeOz so an
-                              // undo can't revoke a catch or pay the same milestone twice
+  "catchMeterOz": 36,         // oz banked toward the next catch at the current difficulty;
+                              // its own running counter, not derived from lifetimeOz, so a
+                              // difficulty change only affects catches going forward
+  "difficulty": "medium",     // "easy" (48oz) | "medium" (64oz) | "hard" (100oz)
   "entries": [{ "id": "…", "oz": 16, "ts": 1750000000000 }],
-  "caught":  [{ "dex": 25, "ts": 1750000000000, "milestone": 400 }],
+  "caught":  [{ "dex": 25, "ts": 1750000000000, "milestone": 4280 }],
   "dailyGoal": 64
 }
 ```
+
+Saves from before the difficulty toggle (`version: 1`, with a `discoveriesGranted` counter
+implying a fixed 100oz/catch) are migrated automatically on load: the banked remainder carries
+over into `catchMeterOz` and difficulty defaults to Medium.
 
 ## Sprites
 
@@ -89,8 +99,8 @@ sprites/1…151.png   bundled grid sprites
 ```
 
 State rules live in `js/storage.js` and are pure functions of the saved state — that's the
-place to look (or change) if you want different milestone spacing than 100 oz
-(`OZ_PER_DISCOVERY`) or a different starting goal.
+place to look (or change) if you want different difficulty values (`THRESHOLDS`) or a
+different starting daily goal.
 
 ## Not built yet
 

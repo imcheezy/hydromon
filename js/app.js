@@ -21,6 +21,7 @@
     }
     state.entries.push({ id: makeId(), oz: oz, ts: Date.now() });
     state.lifetimeOz += oz;
+    state.catchMeterOz += oz;
     grantDiscoveries();
     persist();
     render();
@@ -32,6 +33,7 @@
     if (idx === -1) return;
     const [removed] = state.entries.splice(idx, 1);
     state.lifetimeOz = Math.max(0, state.lifetimeOz - removed.oz);
+    state.catchMeterOz = Math.max(0, state.catchMeterOz - removed.oz);
     // Caught Pokémon are permanent. Undoing an entry just pushes the next
     // discovery further away, it never takes one back.
     persist();
@@ -39,22 +41,32 @@
     showToast("Removed " + removed.oz + " oz");
   }
 
-  /* Hand out every discovery the lifetime total has earned. A single big
-     entry can cross more than one milestone, so this loops. */
+  function setDifficulty(key) {
+    if (!THRESHOLDS[key] || key === state.difficulty) return;
+    state.difficulty = key;
+    // A lower bar can mean banked progress already clears it — grant right
+    // away rather than waiting for the next log.
+    grantDiscoveries();
+    persist();
+    render();
+  }
+
+  /* Hand out every discovery the current meter has earned at the current
+     difficulty. A single big entry (or a difficulty change) can cross more
+     than one threshold, so this loops. */
   function grantDiscoveries() {
-    let owed = pendingDiscoveries(state);
-    while (owed > 0) {
+    const threshold = thresholdFor(state);
+    while (state.catchMeterOz >= threshold) {
       const pick = drawPokemon(state);
       if (!pick) break;
-      state.discoveriesGranted += 1;
+      state.catchMeterOz -= threshold;
       const record = {
         dex: pick.id,
         ts: Date.now(),
-        milestone: state.discoveriesGranted * OZ_PER_DISCOVERY
+        milestone: state.lifetimeOz
       };
       state.caught.push(record);
       revealQueue.push(record);
-      owed -= 1;
     }
     if (revealQueue.length) playNextReveal();
   }
@@ -154,8 +166,12 @@
     } else {
       $("oz-until-next").textContent = remaining + " oz to go";
       $("next-catch-note").textContent =
-        "Next Pokémon at " + nextThreshold(state).toLocaleString() + " oz lifetime.";
+        "A new Pokémon every " + thresholdFor(state) + " oz.";
     }
+
+    document.querySelectorAll(".diff-btn").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.difficulty === state.difficulty);
+    });
 
     const today = todayOz(state);
     $("today-oz").innerHTML = today + "<small>oz</small>";
@@ -205,7 +221,7 @@
       shownLatestDex = null;
       $("latest-kicker").textContent = "Latest catch";
       $("latest-name").textContent = "No Pokémon yet";
-      $("latest-meta").textContent = "Your first appears at 100 oz.";
+      $("latest-meta").textContent = "Your first appears at " + thresholdFor(state) + " oz.";
       return;
     }
 
@@ -429,6 +445,10 @@
       document.querySelectorAll(".chip").forEach((c) => c.classList.toggle("is-active", c === chip));
       renderDex();
     });
+  });
+
+  document.querySelectorAll(".diff-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setDifficulty(btn.dataset.difficulty));
   });
 
   $("discovery-close").addEventListener("click", closeReveal);
